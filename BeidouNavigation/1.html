@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+   <head>
+       <meta charset="utf-8">
+   </head>
+   <body style="height: 100%; margin: 0">
+       <div id="container" style="height: 100%"></div>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts-all-3.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-stat/ecStat.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/dataTool.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/china.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/world.js"></script>
+       <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/bmap.min.js"></script>
+       <script type="text/javascript">
+var dom = document.getElementById("container");
+var myChart = echarts.init(dom);
+var app = {};
+option = null;
+var base = +new Date(2014, 9, 3);
+var oneDay = 24 * 3600 * 1000;
+var date = [];
+
+var data = [];
+var now = new Date(base);
+
+
+
+option = {
+    title: {
+        text: '上海地区车辆统计（单位：千辆）',
+    },
+    tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+            type: 'cross',
+            label: {
+                backgroundColor: '#283b56'
+            }
+        }
+    },
+    dataZoom: {
+        show: false,
+        start: 0,
+        end: 100
+    },
+    xAxis: [
+        {
+            type: 'category',
+            boundaryGap: true,
+            data: (function (){
+                var now = new Date();
+                var res = [];
+                var len = 10;
+                while (len--) {
+                    res.unshift(now.toLocaleTimeString().replace(/^\D*/,''));
+                    now = new Date(now - 300000);
+                }
+                return res;
+            })()
+        },
+        {
+            type: 'category',
+            show: false,
+            boundaryGap: true,
+            data: (function (){
+                var res = [];
+                var len = 10;
+                while (len--) {
+                    res.push(10-len);
+                }
+                return res;
+            })()
+        }
+    ],
+    yAxis: [
+        {
+            type: 'value',
+            scale: true,
+            name: "车辆数",
+            max: 1200,
+            min: 0,
+            boundaryGap: [0.2, 0.2]
+        },
+        {
+            type: 'value',
+            show: false,
+            scale: true,
+            name: '',
+            max: 1200,
+            min: 0,
+            boundaryGap: [0.2, 0.2]
+        }
+    ],
+    series: [
+        {
+            name:'车辆数',
+            type:'bar',
+            xAxisIndex: 1,
+            yAxisIndex: 1,
+            data:(function (){
+                var res = [];
+                var len = 10;
+                while (len--) {
+                    res.push(500+Math.round(Math.random(0,1) * 500));
+                }
+                return res;
+            })()
+        }
+    ]
+};
+
+app.count = 11;
+axisData_now = new Date();
+axisData_now.setSeconds(axisData_now.getSeconds() + (app.count - 10) * 295 + 5);
+axisData = axisData_now.toLocaleTimeString().replace(/^\D*/,'');
+var data0 = option.series[0].data;
+data0.shift();
+data0.push(500+Math.round(Math.random(0,1) * 500));
+option.xAxis[0].data.shift();
+option.xAxis[0].data.push(axisData);
+option.xAxis[1].data.shift();
+option.xAxis[1].data.push(app.count++);
+myChart.setOption(option);
+setInterval(function (){
+    axisData_now = new Date();
+    axisData_now.setSeconds(axisData_now.getSeconds() + (app.count - 10) * 295 + 5);
+    axisData = axisData_now.toLocaleTimeString().replace(/^\D*/,'');
+
+    var data0 = option.series[0].data;
+    data0.shift();
+    data0.push(500+Math.round(Math.random(0,1) * 500));
+
+    option.xAxis[0].data.shift();
+    option.xAxis[0].data.push(axisData);
+    option.xAxis[1].data.shift();
+    option.xAxis[1].data.push(app.count++);
+
+    myChart.setOption(option);
+}, 3000);
+
+       </script>
+   </body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+<head>
+    <meta charset="utf-8">
+</head>
+<body style="height: 100%; width: 100%; margin: 0">
+    <div id="container" style="height: 100%; width:100%"></div>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts-all-3.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-stat/ecStat.min.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/dataTool.min.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/china.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/world.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/bmap.min.js"></script>
+    <script type="text/javascript">
+        var dom = document.getElementById("container");
+        var myChart = echarts.init(dom);
+        var app = {};
+        option = null;
+        var base = +new Date(2014, 9, 3);
+        var oneDay = 2;
+        var date = [];
+        
+        var data = [];
+        var data_tmp = [];
+        now = new Date();
+        var count = 0;
+
+        function setZero(num) {
+          if (num < 10) {
+            return ("0" + num).slice(-2);
+          }
+          return num.toString();
+        }
+
+        function addData(shift) {
+            now_string = [setZero(now.getHours()), setZero(now.getMinutes()), setZero(now.getSeconds())].join(':');
+            date.push(now_string);
+            if (data_tmp.length < 60) {
+               data_tmp.push(Math.random() * 20)
+               var tmp = 0;
+               for (var i = 0; i < data_tmp.length; i++) {
+                 tmp = tmp + data_tmp[i];
+               }
+               data.push(tmp);
+            }
+            else {
+               data_tmp[count % 60] = Math.random() * 20;
+               var tmp = 0;
+               for (var i = 0; i < 60; i++) {
+                 tmp = tmp + data_tmp[i];
+               }
+               data.push(tmp);
+            }
+        
+            if (shift) {
+                date.shift();
+                data.shift();
+            }
+            now.setSeconds(now.getSeconds() + 10);
+            count++;
+        }
+        
+        for (var i = 1; i <= 100; i++) {
+            addData();
+        }
+        
+        option = {
+            title: {
+                text: '拥堵区域10分钟内收费情况（单位：千元）',
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: date
+            },
+            yAxis: {
+                boundaryGap: [0, '50%'],
+                type: 'value',
+                name: '金额',
+                max: 800,
+                min: 300,
+            },
+            series: [
+                {
+                    name:'车辆数',
+                    type:'bar',
+                    smooth:true,
+                    symbol: 'none',
+                    stack: 'a',
+                    areaStyle: {
+                        normal: {}
+                    },
+                    data: data
+                }
+            ]
+        };
+        
+        setInterval(function () {
+            addData(true);
+            myChart.setOption({
+                xAxis: {
+                    data: date
+                },
+                series: [{
+                    name:'成交',
+                    data: data
+                }]
+            });
+        }, 2000);;
+        if (option && typeof option === "object") {
+            myChart.setOption(option, true);
+        }
+    </script>
+</body>
+</html>

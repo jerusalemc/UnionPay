@@ -1,0 +1,163 @@
+<!DOCTYPE html>  
+<html>  
+<head>  
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />  
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />  
+<!--         <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ui7X2CSu3ITjojARL4tILi5W1i9gkDVS"></script> 
+        <script type="text/javascript" src="http://api.map.baidu.com/library/LuShu/1.2/src/LuShu_min.js"></script> -->
+        <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <style type="text/css">  
+        body, html {
+        	width: 100%;
+        	height: 100%;
+        	overflow: hidden;
+        	margin:0;
+        	font-family:"微软雅黑";
+        }  
+  
+        /* --------------拥堵费用及车牌使用表格------------------- */
+        .slide-title{
+           background: rgba(0,0,0,.5);
+           color: #fff;
+           height: 34px;
+           line-height: 34px;
+           padding: 0 10px;
+           font-size: 12px;
+           font-weight: bold;    
+        }
+        .slide-title span{
+            float: left;
+            margin-right: 14px;    
+        }
+        .slide-title span:nth-child(1),
+        .slide-list li span:nth-child(1){
+            width: 25%;
+        }
+        .slide-title span:nth-child(2),
+        .slide-list li span:nth-child(2){
+            width: 25%;
+        }
+        .slide-title span:nth-child(3),
+        .slide-list li span:nth-child(3){
+            width: 25%;
+            margin-right: 0px;
+        }
+        
+        .slide-container{
+          position: relative;
+          overflow: hidden;
+           height: 90%;
+        }
+        .slide-list{
+          position:absolute;
+          width:100%;
+          left:0;
+          top:0;
+          color:#000;
+           margin:0;
+            padding:0;
+        }
+        .slide-list li {
+          height:30px;
+          line-height:30px;
+          list-style:none;
+           margin:0;
+           padding:0 10px;
+        }
+        .slide-list li span {
+          display:inline-block;
+          margin-right:20px;
+          width: 33%;
+          font-size:12px;
+          overflow:hidden;
+          text-overflow:ellipsis;
+          white-space:nowrap;
+        }
+         .slide-list li.odd{
+            background: rgba(51,79,109,.3);
+        }
+        .slide-list li.even{
+            background: rgba(51,79,109,.1);
+        }
+
+    </style>  
+    <title>拥堵费用及车牌统计表格</title>  
+</head>  
+
+<body>  
+  <div class="slide-title">
+          <span style="width: 26%">车牌号</span>
+          <span style="width: 28%">收费(元)</span>
+          <span>时间</span>
+  </div>
+  <div class="slide-container">
+      <ul class="slide-list js-slide-list" id='fee'></ul>
+  </div>
+</body>  
+</html>  
+
+
+<script type="text/javascript">      
+
+    // --------------拥堵费用及车牌使用表格-------------------
+    var doscroll = function(){
+      var $parent = $('.js-slide-list');
+      var $first = $parent.find('li:first');
+      var height = $first.height();
+      $first.animate({
+         marginTop: -height + 'px'
+         }, 500, function() {
+         $first.css('marginTop', 0).appendTo($parent);
+      });    
+    };
+    var flag = 0;
+    var cars = new Array("皖A•88888", "京A•30087", "浙A•GX588", "豫A•5202C", "新B•74110", "云A•QQ360", "鲁G•58800", "川A•218CG", 
+    	                   "沪A•C1288", "粤B•650LB", "辽A•87459", "蒙A•01236", "冀A•594NB", "苏A•00S06", "赣A•45687", "沪B•23740", 
+                         "新A•B44LM", "蒙C•7XG95", "津A•11Q08", "晋A•50LC9", "吉A•49F7C", "黑A•S8022", "闽A•66XX2", "鄂A•NR90F",
+                         "湘A•77777", "粤A•68254", "桂A•BZ583", "琼A•63127", "贵A•459AD", "渝A•JH666", "藏A•89892", "陕A•00001",
+                         "甘A•61816", "青A•44454", "宁A•ASD25", "皖B•23751", "苏B•FH58S", "湘B•AC8DE", "鲁A•78630", "晋B•CR34A",
+                         "豫B•DZ008", "吉B•XZ520", "川B•20QSY", "浙B•HCFWM", "京B•881SY", "津B•44YY1", "黑B•45999", "贵B•23231",
+                         "琼B•66778", "赣B•BL649", "蒙B•C23L5", "沪G•23331", "桂B•639LM", "渝B•AA220", "甘B•57238", "陕B•JK127");
+    var fees = new Array("12.1", "23.5", "90.3", "17.4", "47.2", "51.9", "64.7", "36.0", "23.3", "45.1",
+    	                   "73.7", "83.1", "17.9", "41.8", "63.2", "59.0", "32.6", "45.1", "34.1", "92.4",
+                         "57.2", "65.3", "73.7", "55.3", "42.9", "77.3", "22.9", "70.5", "12.7", "12.5",
+                         "51.5", "41.6", "33.2", "21.7", "65.0", "42.6", "33.4", "58.2", "83.6", "71.9",
+                         "10.5", "91.4", "53.2", "69.0", "45.0", "37.4", "25.5", "62.2", "64.4", "38.8",
+                         "55.5", "85.9", "57.4", "79.3", "20.0", "36.3"); 
+    setInterval(function(){
+
+    	if (flag >= 7) {
+    		doscroll();
+    	}
+    	if (flag >= 8) {
+    		$('ul li:last-child').remove();
+    	}
+        var car = cars[Math.round(Math.random() * 56)];
+        var fee = fees[Math.round(Math.random() * 56)];
+        var now = new Date();
+        var time = [setZero(now.getHours()), setZero(now.getMinutes()), setZero(now.getSeconds())].join(':');
+        var type = "even";
+        if (flag % 2 == 0) {
+        	type = "odd";
+        }
+
+        if (flag > 0) {
+    	    $('<li class=\"' + type + '\"><span>' + car.toString() + '</span><span>' + fee.toString() + '</span><span>' + time + '</span></li>').insertAfter('ul li:last');
+        }
+        if (flag == 0){
+        	var $first = $('<li class=\"' + type + '\"><span>' + car.toString() + '</span><span>' + fee.toString() + '</span><span>' + time + '</span></li>') 
+    	    var $parent = $('ul');    //获得ul
+            $parent.append($first);
+        } 
+    	flag++;
+    }, 2000);
+
+
+    function setZero(num) {
+    	if (num < 10) {
+    		return ("0" + num).slice(-2);
+    	}
+    	return num.toString();
+    }
+
+</script>  

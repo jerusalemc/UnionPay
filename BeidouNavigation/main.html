@@ -1,0 +1,298 @@
+<!DOCTYPE html>  
+<html>  
+<head>  
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />  
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />  
+        <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ui7X2CSu3ITjojARL4tILi5W1i9gkDVS"></script> 
+        <script type="text/javascript" src="http://api.map.baidu.com/library/LuShu/1.2/src/LuShu_min.js"></script>
+        <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <style type="text/css">  
+        body, html {
+        	width: 100%;
+        	height: 100%;
+        	overflow: hidden;
+        	margin:0;
+        	font-family:"微软雅黑";
+        }  
+        #allmap {
+        	height: 100%;
+        	width: 75%;
+        	float: left;
+        	overflow: hidden;
+        	margin:0;
+        	font-family:"微软雅黑";
+        }
+        #map1, #map2,#map3, #map4 {
+        	height: 25%;
+        	width: 25%;
+        	float: left;
+        }
+    </style>  
+    <title>北斗后台系统</title>  
+    <script>
+        function handle_change() {
+            //alert(document.getElementById("recv").value);
+            var car_coordinate = document.getElementById("recv").value.split(':');
+            var car_point_new = new BMap.Point(parseFloat(car_coordinate[0]), parseFloat(car_coordinate[1]));
+            car_marker.setPosition(car_point_new);
+        }
+    </script>
+</head>  
+
+<body>  
+  <div id="allmap"></div>  
+    <input type="hidden" id="recv" onchange="handle_change()">
+    <div id="map1"><iframe src="1.html" width="100%" height="100%"></iframe></div>
+    <div id="map2"><iframe src="2.html" width="100%" height="100%"></iframe></div>
+    <div id="map2"><iframe src="3.html" width="100%" height="100%"></iframe></div>
+    <div id="map4"><iframe src="4.html" width="100%" height="100%"></iframe></div>
+</body>  
+</html>  
+
+
+<script type="text/javascript">      
+    var map = new BMap.Map("allmap");                     // 创建Map实例  
+    var car_point = new BMap.Point(121.485943,31.23751805);      
+
+    var area_up_left = new BMap.Point(121.457501,31.257765);
+    var area_up_right = new BMap.Point(121.494385,31.257765);
+    var area_down_right = new BMap.Point(121.494385,31.217271);
+    var area_down_left = new BMap.Point(121.457501,31.217271);
+
+    map.centerAndZoom(car_point, 16);  
+    map.addControl(new BMap.ScaleControl());  
+    map.addControl(new BMap.OverviewMapControl());  
+    map.enableScrollWheelZoom();                          //启用滚轮放大缩小  
+    map.addControl(new BMap.NavigationControl());  
+
+
+    var options_car = {
+            size: BMAP_POINT_SIZE_SMALL,
+            shape: BMAP_POINT_SHAPE_STAR,
+            color: '#d340c3'
+        }
+    var car_marker = new BMap.Marker(car_point, {icon: new BMap.Symbol(BMap_Symbol_SHAPE_STAR, {scale: 1, fillColor: "red", fillOpacity: 0.8, strokeWeight: 0.5})});
+    // addMarker(car_point, "详情", "中心点");     
+    map.addOverlay(car_marker);
+    car_marker.addEventListener("click", function () {    // 监听标注事件  
+            var opts = {         // 创建信息窗口
+                width: 250,       
+                height: 100,        
+                title: "详情"            
+            }
+            var infoWindow = new BMap.InfoWindow("中心点", opts);  // 创建信息窗口对象    
+            map.openInfoWindow(infoWindow, car_point);          // 打开信息窗口             
+        }); 
+
+
+    // map.centerAndZoom(new BMap.Point(116.404, 39.915), 14);
+    var bounds = null;
+    var linesPoints = null;
+
+    // var start_points = new Array(new BMap.Point(121.457501,31.257765), new BMap.Point(121.494385,31.257765), new BMap.Point(121.483058,31.257523), 
+    //                              new BMap.Point(121.474865,31.244743), new BMap.Point(121.481477,31.221461), new BMap.Point(121.498652,31.22177), 
+    //                              new BMap.Point(121.49125,31.254251),  new BMap.Point(121.462792,31.237518), new BMap.Point(121.460995,31.24005),
+    //                              new BMap.Point(121.498437,31.234616), new BMap.Point(121.453521,31.233936), new BMap.Point(121.491106,31.254251),
+    //                              new BMap.Point(121.463798,31.258635), new BMap.Point(121.475512,31.259067), new BMap.Point(121.513025,31.256844),
+    //                              new BMap.Point(121.43958,31.230787),  new BMap.Point(121.462792,31.222017), new BMap.Point(121.457618,31.261413),
+    //                              new BMap.Point(121.475512,31.215285), new BMap.Point(121.491178,31.244187), new BMap.Point(121.473643,31.239),
+    //                              new BMap.Point(121.463654,31.248849), new BMap.Point(121.455857,31.245422), new BMap.Point(121.488555,31.246039),
+    //                              new BMap.Point(121.497646,31.217786), new BMap.Point(121.477488,31.211084), new BMap.Point(121.511193,31.246502),
+    //                              new BMap.Point(121.431639,31.240142), new BMap.Point(121.438753,31.212907), new BMap.Point(121.50954,31.212412));
+
+    // var end_points =   new Array(new BMap.Point(121.494385,31.217271), new BMap.Point(121.457501,31.217271), new BMap.Point(121.455102,31.229366),
+    //                              new BMap.Point(121.48586,31.233133),  new BMap.Point(121.495418,31.246842), new BMap.Point(121.481189,31.209169),
+    //                              new BMap.Point(121.466385,31.2482),   new BMap.Point(121.491322,31.237333), new BMap.Point(121.467607,31.226155),
+    //                              new BMap.Point(121.478099,31.26524),  new BMap.Point(121.489597,31.22492),  new BMap.Point(121.470553,31.26024),
+    //                              new BMap.Point(121.48277,31.25561),   new BMap.Point(121.499155,31.260363), new BMap.Point(121.510151,31.238815),
+    //                              new BMap.Point(121.455677,31.255301), new BMap.Point(121.506845,31.224858), new BMap.Point(121.506557,31.240111),
+    //                              new BMap.Point(121.443101,31.233504), new BMap.Point(121.46387,31.246657),  new BMap.Point(121.489094,31.264191),
+    //                              new BMap.Point(121.477452,31.247367), new BMap.Point(121.458336,31.233257), new BMap.Point(121.492687,31.216427),
+    //                              new BMap.Point(121.469439,31.212752), new BMap.Point(121.516151,31.242057), new BMap.Point(121.486543,31.265765),
+    //                              new BMap.Point(121.454563,31.216489), new BMap.Point(121.443209,31.233411), new BMap.Point(121.506234,31.230632));
+    var start_points = new Array();
+    var end_points = new Array();
+    for (var i = 0; i < 50; i++) {
+        var start_point_x = 121.457521 + Math.random() * (121.513769 - 121.447521);
+        var start_point_y = 31.21303 + Math.random() * (31.259839 - 31.21303);
+        start_points.push(new BMap.Point(start_point_x, start_point_y));
+
+        var end_point_x = 121.43363 + Math.random() * (121.54081 - 121.43363);
+        var end_point_y = 31.217045 + Math.random() * (31.259839 - 31.217045);
+        end_points.push(new BMap.Point(end_point_x, end_point_y));        
+    }
+
+    // var myIcon = new BMap.Icon("http://lbsyun.baidu.com/jsdemo/img/Mario.png", new BMap.Size(10, 15), {imageOffset: new BMap.Size(0, 0)});
+    var myIcon = new BMap.Icon("car_right.png", new BMap.Size(10, 15), {imageOffset: new BMap.Size(0, 0)});
+    function initLine(){
+        bounds = new Array();
+        linesPoints = new Array();
+        map.clearOverlays();            // 清空覆盖物
+
+        var ov_points = new Array(area_up_left, area_up_right, area_down_right, area_down_left);
+        var polyline_1 = new BMap.Polygon(ov_points, {strokeColor:"red", strokeWeight:6, strokeOpacity:0.3, fillColor:"red", fillOpacity: 0.05});
+        map.addOverlay(polyline_1);
+
+        map.addOverlay(car_marker);
+        for (var i = 0; i < start_points.length; i++) {
+            var driving3 = new BMap.DrivingRoute(map,{onSearchComplete:drawLine});
+            driving3.search(start_points[i], end_points[i]);
+        }
+        
+
+        // console.log('state: ' + connection.readyState.toString());
+        // connection.onopen = function wsOpen(event) {
+        //     // console.log('Connected to:' + event.currentTarget.URL)
+        //     setInterval(function() {
+        //         connection.send('向服务端发送消息');
+        //     }, 1000);
+        // };
+        
+
+        // connection.onmessage = function wsMessage (event) {
+        //     console.log(event.data);
+        // };
+
+        // connection.onclose = function wsClose() {
+        //     console.log('Closed');
+        // }
+
+        // connection.onerror = wsError;
+        // function wsError(event) {
+        //     console.log("Error: " + event.data);
+        // }
+    }
+
+    function run(){
+        for(var m = 0;m < linesPoints.length; m++){
+            var pts = linesPoints[m];
+            var len = pts.length;
+            var carMk = new BMap.Marker(pts[0],{icon:myIcon});
+            map.addOverlay(carMk);
+            resetMkPoint(1,len,pts,carMk)
+        }
+        
+        function resetMkPoint(i,len,pts,carMk){
+            carMk.setPosition(pts[i]);
+            if(i < len){
+                setTimeout(function(){
+                    i++;
+                    resetMkPoint(i,len,pts,carMk);
+                },500);
+            }
+        }
+    }
+
+    function drawLine(results){
+        var opacity = 0;
+        var planObj = results.getPlan(0);
+        var b = new Array();
+
+        var addPoints = function(points){
+            for(var i = 0; i < points.length; i++){
+                bounds.push(points[i]);
+                b.push(points[i]);
+            }
+        }   
+        // 绘制驾车步行线路
+        for (var i = 0; i < planObj.getNumRoutes(); i ++){
+            var route = planObj.getRoute(i);
+            if (route.getDistance(false) <= 0){continue;}
+            addPoints(route.getPath());
+        }   
+        map.setViewport(bounds);    
+        linesPoints[linesPoints.length] = b;
+    }
+  
+    initLine();
+    setTimeout(function(){
+        run();
+    }, 5000);
+    //run();
+    setInterval(function(){
+        run();
+    }, 25000);
+
+
+        var connection = new WebSocket('ws://192.168.1.179:9003');
+    
+        var conn = setInterval(function() {
+            connection = new WebSocket('ws://192.168.1.179:9003');
+            if (connection.readyState == 1){
+                clearInterval(conn);
+            }
+
+            connection.onopen = function wsOpen(event) {
+            // console.log('Connected to:' + event.currentTarget.URL)
+                //setInterval(function() {
+                     connection.send('向服务端发送消息');
+                     setTimeout(function() {
+
+                     }, 10000);
+                //}, 5000);
+            };
+            // connection.onopen = () => connection.send('hello');
+
+            connection.onmessage = function wsMessage (event) {
+                console.log(event.data);
+                var car_coordinate = event.data.split(':');
+                car_point_new = new BMap.Point(parseFloat(car_coordinate[0]), parseFloat(car_coordinate[1]));
+                car_marker.setPosition(car_point_new);
+            };
+    
+            connection.onclose = function wsClose() {
+                console.log('Closed');
+            }
+    
+            connection.onerror = wsError;
+            function wsError(event) {
+                console.log("Error: " + event.data);
+            }
+
+
+        }, 1000);
+
+
+            // connection.onopen = function wsOpen(event) {
+            // // console.log('Connected to:' + event.currentTarget.URL)
+            //     setInterval(function() {
+            //          connection.send('向服务端发送消息');
+            //     }, 5000);
+            // };
+        
+
+            // connection.onmessage = function wsMessage (event) {
+            //     console.log(event.data);
+            // };
+    
+            // connection.onclose = function wsClose() {
+            //     console.log('Closed');
+            // }
+    
+            // connection.onerror = wsError;
+            // function wsError(event) {
+            //     console.log("Error: " + event.data);
+            // }
+        
+//          waitForSocketConnection(connection, callback);
+        
+//  function waitForSocketConnection(connection,){
+//     setTimeout(
+//         function () {
+//             if (connection.readyState ==1) {
+//                 console.log("Connection is made")
+//                 if(callback != null){
+//                     callback();
+//                 }
+//                 return;
+
+//             } else {
+//                 console.log("wait for connection...")
+//                 waitForSocketConnection(connection, callback);
+//             }
+
+//         }, 5000); // wait 5 milisecond for the connection...
+// }
+
+
+</script>  

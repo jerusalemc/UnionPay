@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+<head>
+    <meta charset="utf-8">
+</head>
+<body style="height: 100%; width: 100%; margin: 0">
+    <div id="container" style="height: 100%; width:100%"></div>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts-all-3.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-stat/ecStat.min.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/dataTool.min.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/china.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/world.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/bmap.min.js"></script>
+    <script type="text/javascript">
+        var dom = document.getElementById("container");
+        var myChart = echarts.init(dom);
+        var app = {};
+        option = null;
+        var base = +new Date(2014, 9, 3);
+        var oneDay = 2;
+        var date = [];
+        
+        var data = [Math.random() * 60];
+        now = new Date();
+        //alert(now);
+        //var now = _now.toLocaleTimeString();     //获取当前时间
+        
+        function addData(shift) {
+            //now = [now.getFullYear(), now.getMonth() + 1, now.getDate()].join('/');
+            //alert(now);
+            now_string = [setZero(now.getHours()), setZero(now.getMinutes()), setZero(now.getSeconds())].join(':');
+            date.push(now_string);
+            data.push((Math.random() - 0.4) * 20 + 60);
+        
+            if (shift) {
+                date.shift();
+                data.shift();
+            }
+            now.setSeconds(now.getSeconds() + 10);
+        }
+        
+        function setZero(num) {
+          if (num < 10) {
+            return ("0" + num).slice(-2);
+          }
+          return num.toString();
+        }
+        
+        for (var i = 1; i < 100; i++) {
+            addData();
+        }
+        
+        option = {
+            title: {
+                text: '拥堵区域车辆统计图（单位：千辆）',
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: date
+            },
+            yAxis: {
+                boundaryGap: [0, '50%'],
+                type: 'value',
+                name: '车辆数',
+            },
+            series: [
+                {
+                    name:'车辆数',
+                    type:'line',
+                    smooth:true,
+                    symbol: 'none',
+                    stack: 'a',
+                    areaStyle: {
+                        normal: {}
+                    },
+                    data: data
+                }
+            ]
+        };
+        
+        setInterval(function () {
+            addData(true);
+            myChart.setOption({
+                xAxis: {
+                    data: date
+                },
+                series: [{
+                    name:'成交',
+                    areaStyle: {
+                        normal: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                offset: 0,
+                                color: 'rgb(255, 158, 68)'
+                            }, {
+                                offset: 1,
+                                color: 'rgb(255, 70, 131)'
+                            }])
+                        }
+                    },
+                    data: data
+                }]
+            });
+        }, 2000);;
+        if (option && typeof option === "object") {
+            myChart.setOption(option, true);
+        }
+    </script>
+</body>
+</html>
